@@ -1,8 +1,19 @@
 #!/bin/bash
 
-search="$1"
+search=$(printf "%s," "$@")
+search=${search%,}
 
-pic=$(curl -fsS "https://api.fympix.com?search=$search" | jq -r '.[]' | shuf -n 1)
+response=$(curl -fsS "https://api.fympix.com?search=$search") || {
+    echo "Failed to fetch"
+    exit 1
+}
+
+pic=$(echo "$response" | jq -r '.[]' | shuf -n 1)
+
+if [ -z "$pic" ]; then
+    echo "No results found"
+    exit 0
+fi
 
 curl -fsSL "$pic" | chafa
 
