@@ -2,9 +2,20 @@
 
 baseurl="https://api.fympix.com"
 
+show_help() {
+    cat << EOF
+Usage:
+    Searching:
+    fympix STRING                   (fympix "funny meme")
+
+    Uploading:
+    fympix -u STRING -t STRING      (fympix -u image.jpg -t "funny meme")
+EOF
+}
+
 show() {
     wl-copy "$1"
-    curl -fsSL "$1" | chafa
+    curl -fsSL "$1" | chafa --view-size 80x25
 }
 
 query() {
@@ -17,14 +28,14 @@ query() {
         exit 1
     }
 
-    pic=$(echo "$response" | jq -r '.[]' | shuf -n 1)
+    link=$(echo "$response" | jq -r '.[]' | shuf -n 1)
 
-    if [ -z "$pic" ]; then
+    if [ -z "$link" ]; then
         echo "No results found"
         exit 0
     fi
 
-    show "$pic"
+    show "$link"
 }
 
 upload() {
@@ -36,15 +47,18 @@ upload() {
         exit 1
     }
 
-    echo "Uploaded:"
+    path=$(realpath "$file")
+
+    notify-send "Upload complete" "Link copied to clipboard." -i "$path" -a "fympix"
     show "$response"
 }
 
 file=""
 tags=""
 
-while getopts "u:t:" flag; do
+while getopts "hu:t:" flag; do
     case "${flag}" in
+        h) show_help; exit 0 ;;
         u) file="$OPTARG" ;;
         t) tags="$OPTARG" ;;
     esac
@@ -60,5 +74,5 @@ if [ -z "$file" ] && [ -z "$tags" ]; then
     exit 0
 fi
 
-echo "Cringe fail"
+show_help
 
