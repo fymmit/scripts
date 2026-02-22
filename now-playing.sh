@@ -1,17 +1,9 @@
 #!/bin/bash
 
-# get_icon() {
-#     case "$1" in
-#         Playing) echo "" ;;
-#         Paused) echo "" ;;
-#         *) echo "N/A" ;;
-#     esac
-# }
-
-playerctl metadata --format '{{ artist }} - {{ title }}' --follow | while read -r song; do
-    status=$(playerctl status)
-    echo "$song"
-    # icon=$(get_icon "$status")
-    # echo "$icon $song"
+playerctl metadata --format '{{ status }}|{{ artist }} - {{ title }}' --follow | while IFS="|" read -r status song; do
+    case "$status" in
+        Playing) echo " $song" ;;
+        *) echo "" ;;
+    esac
 done
 
