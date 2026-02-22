@@ -21,8 +21,6 @@ show() {
 query() {
     search=$(echo "$1" | sed 's/ /,/g')
 
-    echo "Searching with: $search"
-
     response=$(curl -fsS "$baseurl?search=$search") || {
         echo "Failed to fetch"
         exit 1
